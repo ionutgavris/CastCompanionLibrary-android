@@ -83,7 +83,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * A concrete subclass of {@link BaseCastManager} that is suitable for casting video contents (it
+ * A concrete subclass of {@link com.google.sample.castcompanionlibrary.cast.BaseCastManager} that is suitable for casting video contents (it
  * also provides a single custom data channel/namespace if an out-of-bound communication is needed).
  * <p>
  * This is a singleton that needs to be "initialized" (by calling <code>initialize()</code>) prior
@@ -97,13 +97,13 @@ import java.util.Set;
  * <li>FEATURE_NOTIFICATION: to enable system notifications</li>
  * <li>FEATURE_LOCKSCREEN: to enable lock-screen controls on supported versions</li>
  * </ul>
- * Callers can add {@link MiniController} components to their application pages by adding the
+ * Callers can add {@link com.google.sample.castcompanionlibrary.widgets.MiniController} components to their application pages by adding the
  * corresponding widget to their layout xml and then calling <code>addMiniController()</code>. This
  * class manages various states of the remote cast device.Client applications, however, can
  * complement the default behavior of this class by hooking into various callbacks that it provides
- * (see {@link IVideoCastConsumer}). Since the number of these callbacks is usually much larger than
+ * (see {@link com.google.sample.castcompanionlibrary.cast.callbacks.IVideoCastConsumer}). Since the number of these callbacks is usually much larger than
  * what a single application might be interested in, there is a no-op implementation of this
- * interface (see {@link VideoCastConsumerImpl}) that applications can subclass to override only
+ * interface (see {@link com.google.sample.castcompanionlibrary.cast.callbacks.VideoCastConsumerImpl}) that applications can subclass to override only
  * those methods that they are interested in. Since this library depends on the cast functionalities
  * provided by the Google Play services, the library checks to ensure that the right version of that
  * service is installed. It also provides a simple static method
@@ -142,22 +142,22 @@ public class VideoCastManager extends BaseCastManager
     private Bitmap mVideoArtBitmap;
     private final ComponentName mMediaButtonReceiverComponent;
     private final String mDataNamespace;
-    private Cast.MessageReceivedCallback mDataChannel;
+    private MessageReceivedCallback mDataChannel;
     protected Set<IVideoCastConsumer> mVideoConsumers;
     private IMediaAuthService mAuthService;
 
     /**
      * Initializes the VideoCastManager for clients. Before clients can use VideoCastManager, they
      * need to initialize it by calling this static method. Then clients can obtain an instance of
-     * this singleton class by calling {@link getInstance()} or {@link getInstance(Context)}.
+     * this singleton class by calling {@link getInstance()} or {@link getInstance( android.content.Context)}.
      * Failing to initialize this class before requesting an instance will result in a
-     * {@link CastException} exception.
+     * {@link com.google.sample.castcompanionlibrary.cast.exceptions.CastException} exception.
      *
      * @see getInstance()
      * @param context
      * @param applicationId the unique ID for your application
      * @param targetActivity this points to the activity that should be invoked when user clicks on
-     *            the icon in the {@link MiniController}. Often this is the activity that hosts the
+     *            the icon in the {@link com.google.sample.castcompanionlibrary.widgets.MiniController}. Often this is the activity that hosts the
      *            local player.
      * @param dataNamespace if not <code>null</code>, a custom data channel with this namespace will
      *            be created.
@@ -180,11 +180,11 @@ public class VideoCastManager extends BaseCastManager
 
     /**
      * Returns the initialized instances of this class. If it is not initialized yet, a
-     * {@link CastException} will be thrown.
+     * {@link com.google.sample.castcompanionlibrary.cast.exceptions.CastException} will be thrown.
      *
      * @see initialze()
      * @return
-     * @throws CastException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.CastException
      */
     public static VideoCastManager getInstance() throws CastException {
         if (null == sInstance) {
@@ -196,16 +196,16 @@ public class VideoCastManager extends BaseCastManager
 
     /**
      * Returns the initialized instances of this class. If it is not initialized yet, a
-     * {@link CastException} will be thrown. The {@link Context} that is passed as the argument will
+     * {@link com.google.sample.castcompanionlibrary.cast.exceptions.CastException} will be thrown. The {@link android.content.Context} that is passed as the argument will
      * be used to update the context for the <code>VideoCastManager
      * </code> instance. The main purpose of updating context is to enable the library to provide
-     * {@link Context} related functionalities, e.g. it can create an error dialog if needed. This
+     * {@link android.content.Context} related functionalities, e.g. it can create an error dialog if needed. This
      * method is preferred over the similar one without a context argument.
      *
      * @see {@link initialize()}, {@link setContext()}
      * @param context the current Context
      * @return
-     * @throws CastException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.CastException
      */
     public static VideoCastManager getInstance(Context context) throws CastException {
         if (null == sInstance) {
@@ -243,8 +243,8 @@ public class VideoCastManager extends BaseCastManager
     /**
      * Updates the information and state of a MiniController.
      *
-     * @throws TransientNetworkDisconnectionException
-     * @throws NoConnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException
      */
     private void updateMiniController(IMiniController controller)
             throws TransientNetworkDisconnectionException, NoConnectionException {
@@ -314,7 +314,7 @@ public class VideoCastManager extends BaseCastManager
 
     /**
      * Updates the visibility of the mini controllers. In most cases, clients do not need to use
-     * this as the {@link VideoCastManager} handles the visibility.
+     * this as the {@link com.google.sample.castcompanionlibrary.cast.VideoCastManager} handles the visibility.
      *
      * @param visible
      */
@@ -341,7 +341,7 @@ public class VideoCastManager extends BaseCastManager
      */
     public void startCastControllerActivity(Context context, Bundle mediaWrapper, int position,
             boolean shouldStart, JSONObject customData) {
-        Intent intent = new Intent(context, VideoCastControllerActivity.class);
+        Intent intent = new Intent(context, mTargetActivity);
         intent.putExtra(EXTRA_MEDIA, mediaWrapper);
         intent.putExtra(EXTRA_START_POINT, position);
         intent.putExtra(EXTRA_SHOULD_START, shouldStart);
@@ -361,7 +361,7 @@ public class VideoCastManager extends BaseCastManager
      */
     public void startCastControllerActivity(Context context, Bundle mediaWrapper, int position,
             boolean shouldStart) {
-        Intent intent = new Intent(context, VideoCastControllerActivity.class);
+        Intent intent = new Intent(context, mTargetActivity);
         intent.putExtra(EXTRA_MEDIA, mediaWrapper);
         intent.putExtra(EXTRA_START_POINT, position);
         intent.putExtra(EXTRA_SHOULD_START, shouldStart);
@@ -418,9 +418,9 @@ public class VideoCastManager extends BaseCastManager
     /*************************************************************************/
 
     /**
-     * Returns the active {@link RemoteMediaPlayer} instance. Since there are a number of media
+     * Returns the active {@link com.google.android.gms.cast.RemoteMediaPlayer} instance. Since there are a number of media
      * control APIs that this library do not provide a wrapper for, client applications can call
-     * those methods directly after obtaining an instance of the active {@link RemoteMediaPlayer}.
+     * those methods directly after obtaining an instance of the active {@link com.google.android.gms.cast.RemoteMediaPlayer}.
      *
      * @return
      */
@@ -503,8 +503,8 @@ public class VideoCastManager extends BaseCastManager
      * connection, this will return <code>null</code>.
      *
      * @return
-     * @throws NoConnectionException If no connectivity to the device exists
-     * @throws TransientNetworkDisconnectionException If framework is still trying to recover from a
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException If no connectivity to the device exists
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException If framework is still trying to recover from a
      *             possibly transient loss of network
      */
     public String getRemoteMovieUrl() throws TransientNetworkDisconnectionException,
@@ -523,8 +523,8 @@ public class VideoCastManager extends BaseCastManager
      * Indicates if the remote movie is currently playing (or buffering).
      *
      * @return
-     * @throws NoConnectionException
-     * @throws TransientNetworkDisconnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException
      */
     public boolean isRemoteMoviePlaying() throws TransientNetworkDisconnectionException,
             NoConnectionException {
@@ -537,8 +537,8 @@ public class VideoCastManager extends BaseCastManager
      * Returns <code>true</code> if the remote connected device is playing a movie.
      *
      * @return
-     * @throws NoConnectionException
-     * @throws TransientNetworkDisconnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException
      */
     public boolean isRemoteMoviePaused() throws TransientNetworkDisconnectionException,
             NoConnectionException {
@@ -551,8 +551,8 @@ public class VideoCastManager extends BaseCastManager
      * buffered.
      *
      * @return
-     * @throws NoConnectionException
-     * @throws TransientNetworkDisconnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException
      */
     public boolean isRemoteMediaLoaded() throws TransientNetworkDisconnectionException,
             NoConnectionException {
@@ -561,11 +561,11 @@ public class VideoCastManager extends BaseCastManager
     }
 
     /**
-     * Returns the {@link MediaInfo} for the current media
+     * Returns the {@link com.google.android.gms.cast.MediaInfo} for the current media
      *
      * @return
-     * @throws NoConnectionException If no connectivity to the device exists
-     * @throws TransientNetworkDisconnectionException If framework is still trying to recover from a
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException If no connectivity to the device exists
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException If framework is still trying to recover from a
      *             possibly transient loss of network
      */
     public MediaInfo getRemoteMediaInformation() throws TransientNetworkDisconnectionException,
@@ -579,8 +579,8 @@ public class VideoCastManager extends BaseCastManager
      * Gets the remote's system volume. If no device is connected to, or if an exception is thrown,
      * this returns -1. It internally detects what type of volume is used.
      *
-     * @throws NoConnectionException If no connectivity to the device exists
-     * @throws TransientNetworkDisconnectionException If framework is still trying to recover from a
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException If no connectivity to the device exists
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException If framework is still trying to recover from a
      *             possibly transient loss of network
      */
     public double getVolume() throws TransientNetworkDisconnectionException, NoConnectionException {
@@ -598,9 +598,9 @@ public class VideoCastManager extends BaseCastManager
      * <code>device</code> volume.
      *
      * @param volume Should be a value between 0 and 1, inclusive.
-     * @throws NoConnectionException
-     * @throws TransientNetworkDisconnectionException
-     * @throws CastException If setting system volume fails
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.CastException If setting system volume fails
      */
     public void setVolume(double volume) throws CastException,
             TransientNetworkDisconnectionException, NoConnectionException {
@@ -613,7 +613,7 @@ public class VideoCastManager extends BaseCastManager
         if (mVolumeType == VolumeType.STREAM) {
             checkRemoteMediaPlayerAvailable();
             mRemoteMediaPlayer.setStreamVolume(mApiClient, volume).setResultCallback(
-                    new ResultCallback<RemoteMediaPlayer.MediaChannelResult>() {
+                    new ResultCallback<MediaChannelResult>() {
 
                         @Override
                         public void onResult(MediaChannelResult result) {
@@ -641,10 +641,10 @@ public class VideoCastManager extends BaseCastManager
      * should be done for <code>stream</code> or <code>device</code> volume.
      *
      * @param delta
-     * @throws NoConnectionException If no connectivity to the device exists
-     * @throws TransientNetworkDisconnectionException If framework is still trying to recover from a
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException If no connectivity to the device exists
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException If framework is still trying to recover from a
      *             possibly transient loss of network
-     * @throws CastException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.CastException
      */
     public void incrementVolume(double delta) throws CastException,
             TransientNetworkDisconnectionException, NoConnectionException {
@@ -661,7 +661,7 @@ public class VideoCastManager extends BaseCastManager
     /**
      * Increments or decrements volume by <code>delta</code> if <code>delta &gt; 0</code> or
      * <code>delta &lt; 0</code>, respectively. Note that the volume range is between 0 and {@link
-     * RouteInfo.getVolumeMax()}.
+     * android.support.v7.media.MediaRouter.RouteInfo.getVolumeMax()}.
      *
      * @param delta
      */
@@ -677,8 +677,8 @@ public class VideoCastManager extends BaseCastManager
      * be done for <code>stream</code> or <code>device</code> volume.
      *
      * @return
-     * @throws NoConnectionException
-     * @throws TransientNetworkDisconnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException
      */
     public boolean isMute() throws TransientNetworkDisconnectionException, NoConnectionException {
         checkConnectivity();
@@ -695,9 +695,9 @@ public class VideoCastManager extends BaseCastManager
      * <code>stream</code> or <code>device</code> volume.
      *
      * @param mute
-     * @throws CastException
-     * @throws NoConnectionException
-     * @throws TransientNetworkDisconnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.CastException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException
      */
     public void setMute(boolean mute) throws CastException, TransientNetworkDisconnectionException,
             NoConnectionException {
@@ -720,8 +720,8 @@ public class VideoCastManager extends BaseCastManager
      * there is no channel established, this method returns -1.
      *
      * @return
-     * @throws NoConnectionException
-     * @throws TransientNetworkDisconnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException
      */
     public double getMediaDuration() throws TransientNetworkDisconnectionException,
             NoConnectionException {
@@ -735,8 +735,8 @@ public class VideoCastManager extends BaseCastManager
      * channel established, this method returns -1.
      *
      * @return
-     * @throws NoConnectionException
-     * @throws TransientNetworkDisconnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException
      */
     public double getCurrentMediaPosition() throws TransientNetworkDisconnectionException,
             NoConnectionException {
@@ -891,7 +891,7 @@ public class VideoCastManager extends BaseCastManager
             // saving device for future retrieval; we only save the last session info
             Utils.saveStringToPreference(mContext, PREFS_KEY_SESSION_ID, sessionId);
             mRemoteMediaPlayer.requestStatus(mApiClient).
-                    setResultCallback(new ResultCallback<RemoteMediaPlayer.MediaChannelResult>() {
+                    setResultCallback(new ResultCallback<MediaChannelResult>() {
 
                         @Override
                         public void onResult(MediaChannelResult result) {
@@ -1002,8 +1002,8 @@ public class VideoCastManager extends BaseCastManager
      * @param autoPlay If <code>true</code>, playback starts after load
      * @param position Where to start the playback (only used if autoPlay is <code>true</code>.
      *            Units is milliseconds.
-     * @throws NoConnectionException
-     * @throws TransientNetworkDisconnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException
      */
     public void loadMedia(MediaInfo media, boolean autoPlay, int position)
             throws TransientNetworkDisconnectionException, NoConnectionException {
@@ -1018,8 +1018,8 @@ public class VideoCastManager extends BaseCastManager
      * @param position Where to start the playback (only used if autoPlay is <code>true</code>.
      *            Units is milliseconds.
      * @param customData Optional JSONObject data to be passed to the cast device
-     * @throws NoConnectionException
-     * @throws TransientNetworkDisconnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException
      */
     public void loadMedia(MediaInfo media, boolean autoPlay, int position, JSONObject customData)
             throws TransientNetworkDisconnectionException, NoConnectionException {
@@ -1034,7 +1034,7 @@ public class VideoCastManager extends BaseCastManager
         }
 
         mRemoteMediaPlayer.load(mApiClient, media, autoPlay, position, customData)
-                .setResultCallback(new ResultCallback<RemoteMediaPlayer.MediaChannelResult>() {
+                .setResultCallback(new ResultCallback<MediaChannelResult>() {
 
                     @Override
                     public void onResult(MediaChannelResult result) {
@@ -1050,8 +1050,8 @@ public class VideoCastManager extends BaseCastManager
      * Plays the loaded media.
      *
      * @param position Where to start the playback. Units is milliseconds.
-     * @throws NoConnectionException
-     * @throws TransientNetworkDisconnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException
      */
     public void play(int position) throws TransientNetworkDisconnectionException,
             NoConnectionException {
@@ -1068,9 +1068,9 @@ public class VideoCastManager extends BaseCastManager
      * Resumes the playback from where it was left (can be the beginning).
      *
      * @param customData Optional JSONObject data to be passed to the cast device
-     * @throws CastException
-     * @throws NoConnectionException
-     * @throws TransientNetworkDisconnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.CastException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException
      */
     public void play(JSONObject customData) throws CastException,
             TransientNetworkDisconnectionException, NoConnectionException {
@@ -1091,9 +1091,9 @@ public class VideoCastManager extends BaseCastManager
     /**
      * Resumes the playback from where it was left (can be the beginning).
      *
-     * @throws CastException
-     * @throws NoConnectionException
-     * @throws TransientNetworkDisconnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.CastException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException
      */
     public void play() throws CastException, TransientNetworkDisconnectionException,
             NoConnectionException {
@@ -1139,9 +1139,9 @@ public class VideoCastManager extends BaseCastManager
     /**
      * Pauses the playback.
      *
-     * @throws CastException
-     * @throws NoConnectionException
-     * @throws TransientNetworkDisconnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.CastException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException
      */
     public void pause() throws CastException, TransientNetworkDisconnectionException,
             NoConnectionException {
@@ -1152,9 +1152,9 @@ public class VideoCastManager extends BaseCastManager
      * Pauses the playback.
      *
      * @param customData Optional JSONObject data to be passed to the cast device
-     * @throws CastException
-     * @throws NoConnectionException
-     * @throws TransientNetworkDisconnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.CastException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException
      */
     public void pause(JSONObject customData) throws CastException,
             TransientNetworkDisconnectionException, NoConnectionException {
@@ -1177,9 +1177,9 @@ public class VideoCastManager extends BaseCastManager
      * completed, it resumes what it was doing before the start of seek.
      *
      * @param position in milliseconds
-     * @throws NoConnectionException
-     * @throws TransientNetworkDisconnectionException
-     * @throws CastException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.CastException
      */
     public void seek(int position) throws TransientNetworkDisconnectionException,
             NoConnectionException {
@@ -1208,9 +1208,9 @@ public class VideoCastManager extends BaseCastManager
      * Seeks to the given point and starts playback regardless of the starting state.
      *
      * @param position in milliseconds
-     * @throws NoConnectionException
-     * @throws TransientNetworkDisconnectionException
-     * @throws CastException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.CastException
      */
     public void seekAndPlay(int position) throws TransientNetworkDisconnectionException,
             NoConnectionException {
@@ -1239,9 +1239,9 @@ public class VideoCastManager extends BaseCastManager
     /**
      * Toggles the playback of the movie.
      *
-     * @throws CastException
-     * @throws NoConnectionException
-     * @throws TransientNetworkDisconnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.CastException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException
      */
     public void togglePlayback() throws CastException, TransientNetworkDisconnectionException,
             NoConnectionException {
@@ -1411,8 +1411,8 @@ public class VideoCastManager extends BaseCastManager
      * @param message
      * @return
      * @throws IllegalStateException If the namespace is empty or null
-     * @throws NoConnectionException If no connectivity to the device exists
-     * @throws TransientNetworkDisconnectionException If framework is still trying to recover from a
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException If no connectivity to the device exists
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException If framework is still trying to recover from a
      *             possibly transient loss of network
      */
     public void sendDataMessage(String message) throws TransientNetworkDisconnectionException,
@@ -1439,8 +1439,8 @@ public class VideoCastManager extends BaseCastManager
      * then it returns <code>false</code>
      *
      * @return
-     * @throws NoConnectionException
-     * @throws TransientNetworkDisconnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException
+     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException
      */
     public boolean removeDataChannel() {
         if (TextUtils.isEmpty(mDataNamespace)) {
@@ -1742,11 +1742,11 @@ public class VideoCastManager extends BaseCastManager
     /***** Registering IVideoCastConsumer listeners **************/
     /*************************************************************/
     /**
-     * Registers an {@link IVideoCastConsumer} interface with this class. Registered listeners will
+     * Registers an {@link com.google.sample.castcompanionlibrary.cast.callbacks.IVideoCastConsumer} interface with this class. Registered listeners will
      * be notified of changes to a variety of lifecycle and media status changes through the
      * callbacks that the interface provides.
      *
-     * @see VideoCastConsumerImpl
+     * @see com.google.sample.castcompanionlibrary.cast.callbacks.VideoCastConsumerImpl
      * @param listener
      */
     public synchronized void addVideoCastConsumer(IVideoCastConsumer listener) {
@@ -1758,7 +1758,7 @@ public class VideoCastManager extends BaseCastManager
     }
 
     /**
-     * Unregisters an {@link IVideoCastConsumer}.
+     * Unregisters an {@link com.google.sample.castcompanionlibrary.cast.callbacks.IVideoCastConsumer}.
      *
      * @param listener
      */
@@ -1774,8 +1774,8 @@ public class VideoCastManager extends BaseCastManager
     /*************************************************************/
 
     /**
-     * Adds a new {@link IMiniController} component. Callers need to provide their own
-     * {@link OnMiniControllerChangedListener}.
+     * Adds a new {@link com.google.sample.castcompanionlibrary.widgets.IMiniController} component. Callers need to provide their own
+     * {@link com.google.sample.castcompanionlibrary.widgets.MiniController.OnMiniControllerChangedListener}.
      *
      * @param miniController
      * @param OnMiniControllerChangedListener
@@ -1807,8 +1807,8 @@ public class VideoCastManager extends BaseCastManager
     }
 
     /**
-     * Adds a new {@link IMiniController} component and assigns {@link VideoCastManager} as the
-     * {@link OnMiniControllerChangedListener} for this component.
+     * Adds a new {@link com.google.sample.castcompanionlibrary.widgets.IMiniController} component and assigns {@link com.google.sample.castcompanionlibrary.cast.VideoCastManager} as the
+     * {@link com.google.sample.castcompanionlibrary.widgets.MiniController.OnMiniControllerChangedListener} for this component.
      *
      * @param miniController
      */
@@ -1817,7 +1817,7 @@ public class VideoCastManager extends BaseCastManager
     }
 
     /**
-     * Removes a {@link IMiniController} listener from the list of listeners.
+     * Removes a {@link com.google.sample.castcompanionlibrary.widgets.IMiniController} listener from the list of listeners.
      *
      * @param listener
      */

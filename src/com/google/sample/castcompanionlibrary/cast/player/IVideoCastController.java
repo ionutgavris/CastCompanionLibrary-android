@@ -79,4 +79,6 @@ public interface IVideoCastController {
     public void closeActivity();
 
     public void adjustControllersForLiveStream(boolean isLive);
+
+    public boolean loadImage(String url);
 }

@@ -465,41 +465,43 @@ public class VideoCastControllerFragment extends Fragment implements OnVideoCast
      * image to avoid unnecessary network calls.
      */
     private void showImage(final String url) {
-        if (null != mImageAsyncTask) {
-            mImageAsyncTask.cancel(true);
-        }
-        if (null != mUrlAndBitmap && mUrlAndBitmap.isMatch(url)) {
-            // we can reuse mBitmap
-            mCastController.setImage(mUrlAndBitmap.mBitmap);
-            return;
-        }
-        mUrlAndBitmap = null;
-        mImageAsyncTask = new AsyncTask<String, Void, Bitmap>() {
-
-            @Override
-            protected Bitmap doInBackground(String... params) {
-                String uri = params[0];
-                try {
-                    URL imgUrl = new URL(uri);
-                    return BitmapFactory.decodeStream(imgUrl.openStream());
-                } catch (Exception e) {
-                    LOGE(TAG, "Failed to load the image with mUrl: " + uri, e);
-                }
-                return null;
+        if (!mCastController.loadImage(url)) {
+            if (null != mImageAsyncTask) {
+                mImageAsyncTask.cancel(true);
             }
-
-            @Override
-            protected void onPostExecute(Bitmap bitmap) {
-                if (null != bitmap) {
-                    mUrlAndBitmap = new UrlAndBitmap();
-                    mUrlAndBitmap.mBitmap = bitmap;
-                    mUrlAndBitmap.mUrl = url;
-                    mCastController.setImage(bitmap);
-                }
+            if (null != mUrlAndBitmap && mUrlAndBitmap.isMatch(url)) {
+                // we can reuse mBitmap
+                mCastController.setImage(mUrlAndBitmap.mBitmap);
+                return;
             }
-        };
+            mUrlAndBitmap = null;
+            mImageAsyncTask = new AsyncTask<String, Void, Bitmap>() {
 
-        mImageAsyncTask.execute(url);
+                @Override
+                protected Bitmap doInBackground(String... params) {
+                    String uri = params[0];
+                    try {
+                        URL imgUrl = new URL(uri);
+                        return BitmapFactory.decodeStream(imgUrl.openStream());
+                    } catch (Exception e) {
+                        LOGE(TAG, "Failed to load the image with mUrl: " + uri, e);
+                    }
+                    return null;
+                }
+
+                @Override
+                protected void onPostExecute(Bitmap bitmap) {
+                    if (null != bitmap) {
+                        mUrlAndBitmap = new UrlAndBitmap();
+                        mUrlAndBitmap.mBitmap = bitmap;
+                        mUrlAndBitmap.mUrl = url;
+                        mCastController.setImage(bitmap);
+                    }
+                }
+            };
+
+            mImageAsyncTask.execute(url);
+        }
     }
 
     /*

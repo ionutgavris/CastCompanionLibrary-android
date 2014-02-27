@@ -25,10 +25,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
@@ -37,6 +34,9 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaStatus;
 import com.google.sample.castcompanionlibrary.R;
@@ -61,7 +61,7 @@ import com.google.sample.castcompanionlibrary.utils.Utils;
  * In that case, this activity manages starting the {@link IMediaAuthService} and will register a
  * listener to handle the result.
  */
-public class VideoCastControllerActivity extends ActionBarActivity implements IVideoCastController {
+public class VideoCastControllerActivity extends SherlockFragmentActivity implements IVideoCastController {
 
     private static final String TAG = LogUtils.makeLogTag(VideoCastControllerActivity.class);
     private VideoCastManager mCastManager;
@@ -70,14 +70,16 @@ public class VideoCastControllerActivity extends ActionBarActivity implements IV
     private TextView mStart;
     private TextView mEnd;
     private SeekBar mSeekbar;
-    private TextView mLine1;
-    private TextView mLine2;
+    protected TextView mLine1;
+    protected TextView mLine2;
     private ProgressBar mLoading;
     private float mVolumeIncrement;
     private View mControllers;
     private Drawable mPauseDrawable;
     private Drawable mPlayDrawable;
     private Drawable mStopDrawable;
+    protected ImageView mCoverBackground;
+    protected ImageView mCover;
     private VideoCastControllerFragment mediaAuthFragment;
     private OnVideoCastControllerListener mListener;
     private int mStreamType;
@@ -95,7 +97,7 @@ public class VideoCastControllerActivity extends ActionBarActivity implements IV
             // logged already
         }
 
-        setupActionBar();
+        //setupActionBar();
         Bundle extras = getIntent().getExtras();
         if (null == extras) {
             finish();
@@ -120,7 +122,7 @@ public class VideoCastControllerActivity extends ActionBarActivity implements IV
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.cast_player_menu, menu);
+        getSupportMenuInflater().inflate(R.menu.cast_player_menu, menu);
         mCastManager.addMediaRouterButton(menu, R.id.media_route_menu_item);
         return true;
     }
@@ -186,6 +188,8 @@ public class VideoCastControllerActivity extends ActionBarActivity implements IV
         mLine2 = (TextView) findViewById(R.id.textView2);
         mLoading = (ProgressBar) findViewById(R.id.progressBar1);
         mControllers = findViewById(R.id.controllers);
+        mCoverBackground = (ImageView) findViewById(R.id.coverBackground);
+        mCover = (ImageView) findViewById(R.id.cover);
 
         mPlayPause.setOnClickListener(new OnClickListener() {
 
@@ -368,4 +372,8 @@ public class VideoCastControllerActivity extends ActionBarActivity implements IV
         finish();
     }
 
+    @Override
+    public boolean loadImage(String url) {
+        return false;
+    }
 }
