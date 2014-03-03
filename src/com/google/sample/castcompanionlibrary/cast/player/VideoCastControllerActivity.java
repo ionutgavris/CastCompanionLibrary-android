@@ -83,6 +83,7 @@ public class VideoCastControllerActivity extends SherlockFragmentActivity implem
     private VideoCastControllerFragment mediaAuthFragment;
     private OnVideoCastControllerListener mListener;
     private int mStreamType;
+    public static final float DEFAULT_VOLUME_INCREMENT = 0.05f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +92,9 @@ public class VideoCastControllerActivity extends SherlockFragmentActivity implem
         loadAndSetupViews();
         mVolumeIncrement = Utils.getFloatFromPreference(
                 this, VideoCastManager.PREFS_KEY_VOLUME_INCREMENT);
+        if (mVolumeIncrement == Float.MIN_VALUE) {
+            mVolumeIncrement = DEFAULT_VOLUME_INCREMENT;
+        }
         try {
             mCastManager = VideoCastManager.getInstance(this);
         } catch (CastException e) {
@@ -137,11 +141,8 @@ public class VideoCastControllerActivity extends SherlockFragmentActivity implem
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (mVolumeIncrement == Float.MIN_VALUE) {
-            return false;
-        }
         if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-            onVolumeChange(mVolumeIncrement);
+            onVolumeChange((double) mVolumeIncrement);
         } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
             onVolumeChange(-(double) mVolumeIncrement);
         } else {

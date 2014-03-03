@@ -1439,8 +1439,6 @@ public class VideoCastManager extends BaseCastManager
      * then it returns <code>false</code>
      *
      * @return
-     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException
-     * @throws com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException
      */
     public boolean removeDataChannel() {
         if (TextUtils.isEmpty(mDataNamespace)) {
